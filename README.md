@@ -2,7 +2,7 @@
 
 Don't use jQuery if all you need is simple AJAX. Tiny Request is here to help. It provides very simple, Node.js-style requests in the browser.
 
-_Note: This is a very early version of this library. Once it is a bit more complete, it will be up on my [CDN](catdad.github.io/tiny.cdn)._
+_Note: This is a very early version of this library. Once it is a bit more complete, it will be up on my [CDN](http://catdad.github.io/tiny.cdn)._
 
 ## Usage
 
@@ -16,6 +16,8 @@ _Note: This is a very early version of this library. Once it is a bit more compl
 			//rejoice!
 		}
 	});
+
+	_TODO: update this with more examples/explanation._
 
 ## About Tiny tools
 
