@@ -10,5 +10,26 @@
 	</style>
 </head>
 <body>
+
+<script type="text/javascript" src='tinyrequest.js'></script>
+<script>
+	var headers = {
+		url: '/headers',
+		headers: { 'x-custom': 'Kiril\'s header' }
+	};
+
+	var notFound = { url: '/404' };
+	var timeout = { url: '/timeout' };
+	var error = { url: '/error' };
+
+	var handleResponse = function(err, response){
+		(err) ? console.log('err', err) : console.log(response);
+	}
+
+	//request(headers, handleResponse);
+	//request(notFound, handleResponse);
+	//request(error, handleResponse);
+	request(timeout, handleResponse);
+</script>
 </body>
 </html>
