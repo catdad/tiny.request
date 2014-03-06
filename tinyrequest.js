@@ -18,7 +18,7 @@
 				if (arr.hasOwnProperty(i)) func(arr[i], i, arr);
 			}
 		})();
-	}
+	};
 
     global.request = function (obj, done) {
         //make sure obj exists
@@ -44,7 +44,7 @@
             	//hmm... do not handle this, onerror has got it
             	//done('unknown error -- likely timeout', null, ajax);
             }
-        }
+        };
 
         //open request
         ajax.open(obj.method, obj.url, obj.async);
@@ -57,7 +57,7 @@
 
         ajax.onerror = function(xhrErr){
         	done(xhrErr, null, ajax)
-        }
+        };
 		
 		//add any headers (must be done after .open but before .send)
 		if (obj.headers)
