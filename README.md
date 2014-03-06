@@ -17,11 +17,13 @@ _Note: This is a very early version of this library. Once it is a bit more compl
 		}
 	});
 
-	_TODO: update this with more examples/explanation._
+_TODO: update this with more examples/explanation._
 
 ## About Tiny tools
 
 These are small bits of code that aid in accomplishing common tasks using common or familiar APIs. They are minimal in the amount of code, only providing the bare necessities, have no dependencies, and are reasonably cross-browser compatible. They can be used as quick drop-in solutions during prototyping or creating demos.
+
+All CSS rules have a `t-` prefix, to decrease the posibility of affecting other styles on the page. The necessary CSS is included in the JavaScript files -- a style element is dynamically inserted into the page to style all Tiny components. This was a design choice made in order to decrease the amount of web requests required for a Tiny module, and also to decrease the amount of files necessary for you to include in your project.
 
 ## License
 
