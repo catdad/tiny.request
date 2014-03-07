@@ -11,6 +11,7 @@
 </head>
 <body>
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript" src='tinyrequest.js'></script>
 <script>
 	var headers = {
@@ -20,15 +21,48 @@
 	var notFound = { url: '/404' };
 	var timeout = { url: '/timeout' };
 	var error = { url: '/error' };
+	var jsonReq = {url: '/json' };
+	
+	var handleResponse = function(err, body, xhr){
+		(err) ? console.log('err', err) : console.log(body);
+	};
+	var handleJSONResponse = function(err, body, xhr){
+		(err) ? console.log('json err', err) : console.log('json', body);
+	};
+	var handleJSONPResponse = function(err, body, xhr){
+		(err) ? console.log('jsonp err', err) : console.log('jsonp', body);
+	};
 
-	var handleResponse = function(err, response){
-		(err) ? console.log('err', err) : console.log(response);
-	}
-
+	
 	request(headers, handleResponse);
 	request(notFound, handleResponse);
 	request(error, handleResponse);
 	request(timeout, handleResponse);
+	request(jsonReq, handleResponse);
+	
+	//json request -- body is parsed
+	request.json(headers, handleJSONResponse);
+	request.json(jsonReq, handleJSONResponse);
+	request.json(error, handleJSONResponse);
+	request.json(timeout, handleJSONResponse);
+
+	//jsonp requests
+	request.jsonp({
+		url: 'http://localhost:8081/json'
+	}, handleJSONPResponse);
+
+	
+	request.jsonp({
+		url: 'http://localhost:8081/notFound'
+	}, handleJSONPResponse);	
+
+	/*
+	$.ajax({
+		url: 'http://localhost:8081/json',
+		dataType: 'jsonp'
+	}).done(function(){
+		console.log(arguments);
+	}); /* */
 </script>
 </body>
 </html>

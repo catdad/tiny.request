@@ -1,7 +1,8 @@
 var http = require('http');
 var fs = require('fs');
 
-var port = 8080;
+var serverPort = 8080;
+var jsonpPort = 8081;
 
 var routes = {
 	staticFile: function(req, res){
@@ -81,9 +82,43 @@ var server = http.createServer(function (req, res) {
 		default:
 			routes.staticFile(req, res);
 	}
-}).listen(port);
+}).listen(serverPort);
 
 //kill requests after 2 second (used for /timeout option)
 server.setTimeout(2000);
 
-console.log('listening on port ', port);
+var jsonp = http.createServer(function(req, res){
+	console.log(req.url);
+
+	var query = (function parseQuery(url){
+		var query = {};
+		var temp = url.split('?').pop().split('&');
+		for (var i = temp.length; i--;) {
+	    	var q = temp[i].split('=');
+	    	query[q.shift()] = q.join('=');
+	  	}
+	  return query;
+	})(req.url);
+
+	var callback = query.callback;
+	var url = req.url.split('?').shift();
+
+
+	switch(url){
+		case '/json':
+			res.writeHead(200, {'Content-Type': 'application/javascript'});
+			res.end(callback + '(' + JSON.stringify({a:1,b:2,q:query}) + ')');
+			break;
+		default:
+			res.writeHead(404);
+			res.end('jsonp - Not found');
+	}
+
+	res.end(JSON.stringify({query: query, url: url}));
+});
+
+//jsonp.setTimeout(2000);
+jsonp.listen(jsonpPort);
+
+console.log('server listening on port ', serverPort);
+console.log('jsonp listening on port ', jsonpPort);

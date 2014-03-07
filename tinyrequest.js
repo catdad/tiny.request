@@ -20,7 +20,7 @@
 		})();
 	};
 
-    global.request = function (obj, done) {
+    var request = global.request = function (obj, done) {
         //make sure obj exists
         obj = obj || {};
         //check settings and create defaults
@@ -36,8 +36,10 @@
         //state change listener
         ajax.onreadystatechange = function () {
             if (ajax.readyState === 4 && ajax.status === 200)
+                //return (err, body, xhr)
                 done(null, ajax.responseText, ajax);
             else if (ajax.readyState === 4 && ajax.status !== 0){
+            	//return (err, body, xhr)
             	done(ajax.status, null, ajax);
             }
             else if (ajax.readyState == 4){
@@ -56,6 +58,7 @@
         //}
 
         ajax.onerror = function(xhrErr){
+        	//return (err, body, xhr)
         	done(xhrErr, null, ajax)
         };
 		
@@ -70,4 +73,57 @@
         //because why not
         return ajax;
     }
+
+    //add special methods
+    request.json = function jsonRequest(obj, done){
+    	request(obj, function(err, body, xhr){
+    		if (err) done(err, body, xhr);
+    		else{
+    			done(null, global.request.parseJSON(body), xhr);
+    		}
+    	});
+    };
+
+    request.jsonp = function jsonpRequest(obj, done){
+    	//create script element
+    	var scr = document.createElement('script');
+    	//generate reasonably unique callback name
+    	var cb = 'tinyrequest_' + Date.now() + '' + Math.random().toString().split('.').pop();
+
+    	//create correct url
+    	scr.src = (obj.url.match(/\?/)) ? (obj.url + '&callback=' + cb) : (obj.url + '?callback=' + cb);
+    	
+    	//catch network errors
+    	scr.onerror = function(err){
+    		done(err);
+    		//cleanup script
+    		scr.parentNode.removeChild(scr);
+    	};
+
+    	//create callback method
+    	window[cb] = function(data){ 
+    		done(null, data);
+			//cleanup script
+			scr.parentNode.removeChild(scr);
+    	};
+
+    	//insert script into document
+    	var head = document.getElementsByTagName('head')[0];
+    	head.appendChild(scr);
+    };
+
+    //add helpers
+    request.parseJSON = function parseJSON(jsonStr){
+    	if (window.JSON && window.JSON.parse) return (JSON.parse(jsonStr));
+
+    	//logic derived from https://github.com/douglascrockford/JSON-js
+    	if (/^[\],:{}\s]*$/
+		.test(jsonStr.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+		.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+		.replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+		    return (new Function( 'return ' + jsonStr))();
+		}
+
+		return null;
+    };
 })(this);
