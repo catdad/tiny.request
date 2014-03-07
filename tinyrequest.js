@@ -40,7 +40,9 @@
                 done(null, ajax.responseText, ajax);
             else if (ajax.readyState === 4 && ajax.status !== 0){
             	//return (err, body, xhr)
-            	done(ajax.status, null, ajax);
+            	var err = new Error(ajax.status);
+            	err.body = ajax.responseText;
+            	done(err, undefined, ajax);
             }
             else if (ajax.readyState == 4){
             	//hmm... do not handle this, onerror has got it
@@ -59,7 +61,7 @@
 
         ajax.onerror = function(xhrErr){
         	//return (err, body, xhr)
-        	done(xhrErr, null, ajax)
+        	done(xhrErr, undefined, ajax)
         };
 		
 		//add any headers (must be done after .open but before .send)
@@ -79,7 +81,8 @@
     	request(obj, function(err, body, xhr){
     		if (err) done(err, body, xhr);
     		else{
-    			done(null, global.request.parseJSON(body), xhr);
+    			var parsedData = request.parseJSON(body);
+    			(parsedData) ? done(null, parsedData, xhr) : done(new Error('invalid JSON'), undefined, xhr);
     		}
     	});
     };

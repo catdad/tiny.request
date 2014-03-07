@@ -8,7 +8,7 @@ _Note: This is a very early version of this library. Once it is a bit more compl
 
 	request({
 		url: 'myurl'
-	}, function(err, response, xhr){
+	}, function(err, body, xhr){
 		if (err){
 			//request ended badly
 		}
@@ -17,7 +17,41 @@ _Note: This is a very early version of this library. Once it is a bit more compl
 		}
 	});
 
-_TODO: update this with more examples/explanation._
+The request object takes the following parameters:
+
+	{
+		url: '/my/url', //default is '#'
+		method: 'POST', //default is 'GET'
+		async: false, //default is true
+		body: { my: "stuff" } //default is null
+	}
+
+### Callback parameters:
+
+`err`: Uh oh! Something went wrong. If this parameter is not `null`, then the request errored out. The error can be an HTTP error (like a 404), or a network error (like a request timeout). The errors will not be consistent in in type -- most will be `Error`, some will be `XMLHttpRequestProgressEvent`, and some stil will be `Event` -- but if you get this parameter, you can just assume you are not getting your data.
+
+`body`: For the most part, this will be the raw response content. In `.json` and `.jsonp`, this will be a parsed object. If there was an error, this value will be `undefined`.
+
+`xhr`: This is the complete `XMLHttpRequest` object. If you don't know what that is, you probably won't need to use it.
+
+### Special requests:
+
+As I have hinted, you can make special requests for JSON and [JSONP](http://json-p.org/). They take the same parameters and provide the same callback as a regular request, but are called as such:
+
+	//JSON
+	request.json(options, callback);
+	//JSONP
+	request.jsonp(options, callback);
+
+Note that since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback.
+
+### Bonus
+
+You also get a bonus basic JSON parser with this library:
+
+	var obj = request.parseJSON(jsonString);
+
+You are welcome.
 
 ## About Tiny tools
 
