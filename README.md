@@ -36,14 +36,14 @@ The request object takes the following parameters:
 
 ### Special requests:
 
-As I have hinted, you can make special requests for JSON and [JSONP](http://json-p.org/). They take the same parameters and provide the same callback as a regular request, but are called as such:
+As I have hinted, you can make special requests for JSON and [JSONP](http://json-p.org/). They take the same parameters, but are called as such:
 
 	//JSON
 	request.json(options, callback);
 	//JSONP
 	request.jsonp(options, callback);
 
-Note that since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback.
+The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter, but you'll see some inconsistency with JSON requests. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback. Since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback, though a regular JSON call will still get the `xhr` object.
 
 ### Bonus
 
