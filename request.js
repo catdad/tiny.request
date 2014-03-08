@@ -1,6 +1,6 @@
-(function (global) {
+!function (global) {
 	//util
-	var each = global.each /* TODO remove */ = function(arr, func){
+	var each = function(arr, func){
 		var native = [].forEach;
 
 		if (arr instanceof Array || 'length' in arr){
@@ -129,4 +129,4 @@
 
 		return null;
     };
-})(this);
+}(this);
