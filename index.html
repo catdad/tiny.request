@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<style>
-		html, body {
-			padding: 0;
-			margin: 0;
-			background: #e5e5e5;
-		}
-	</style>
+    <title>Tiny Request tests</title>
+    
+    <!-- include jasmine -->
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine.js'></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine-html.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/boot.js"></script>
+    <link href='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine.css' rel='stylesheet' />
 </head>
 <body>
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript" src='request.min.js'></script>
+    
+<script type="text/javascript" src='request.js'></script>
 <script>
-	var headers = {
-		url: '/headers',
-		headers: { 'x-custom': 'Kiril\'s header' }
-	};
-	var notFound = { url: '/404' };
-	var timeout = { url: '/timeout' };
-	var error = { url: '/error' };
-	var jsonReq = {url: '/json' };
-	
+    //some premade requests
+    var requests = {
+        headers: {
+            url: '/headers',
+            headers: { 'x-custom': 'Kiril\'s header' }
+        },
+        notFound: { url: '/404' },
+        timeout: { url: '/timeout' },
+        error: { url: '/error' },
+        jsonReq: {url: '/json' }
+    }
+    
 	var handleResponse = function(err, body, xhr){
-		(err) ? console.log('err', err) : console.log(body);
+		(err) ? console.log('default err', err) : console.log('default', body);
 	};
 	var handleJSONResponse = function(err, body, xhr){
 		(err) ? console.log('json err', err) : console.log('json', body);
@@ -33,36 +35,102 @@
 		(err) ? console.log('jsonp err', err) : console.log('jsonp', body);
 	};
 
-	
-	request(headers, handleResponse);
-	request(notFound, handleResponse);
-	request(error, handleResponse);
-	request(timeout, handleResponse);
-	request(jsonReq, handleResponse);
-	
-	//json request -- body is parsed
-	request.json(headers, handleJSONResponse);
-	request.json(jsonReq, handleJSONResponse);
-	request.json(error, handleJSONResponse);
-	request.json(timeout, handleJSONResponse);
+    //test requests
+//	request(requests.headers, handleResponse);
+//	request(requests.notFound, handleResponse);
+//	request(requests.error, handleResponse);
+//	request(requests.timeout, handleResponse);
+//	request(requests.jsonReq, handleResponse);
+//	
+//	//test json requests -- body is parsed
+//	request.json(requests.headers, handleJSONResponse);
+//	request.json(requests.jsonReq, handleJSONResponse);
+//	request.json(requests.error, handleJSONResponse);
+//	request.json(requests.timeout, handleJSONResponse);
 
-	//jsonp requests
-	request.jsonp({
-		url: 'http://localhost:8081/json'
-	}, handleJSONPResponse);
-
-	
-	request.jsonp({
-		url: 'http://localhost:8081/notFound'
-	}, handleJSONPResponse);	
-
-	/*
-	$.ajax({
-		url: 'http://localhost:8081/json',
-		dataType: 'jsonp'
-	}).done(function(){
-		console.log(arguments);
-	}); /* */
+//	//test jsonp requests
+//	request.jsonp({ url: 'http://localhost:8081/json' }, handleJSONPResponse);
+//	request.jsonp({ url: 'http://localhost:8081/notFound' }, handleJSONPResponse);
+//  request.jsonp({ url: 'http://localhost:8081/timeout' }, handleJSONPResponse);
+    
+    /**************************
+     *
+     *  These tests require the nodetest.js file running in Node
+     *  Open this test.html file from the Node server
+     *  http://localhost:8080/index.html
+     *
+     **************************/
+    
+    describe('regular requests', function(){
+        it('should make simple requests', function(done){
+            request(requests.jsonReq, function(err, body, xhr){
+                expect(err).toBeNull();
+                expect(body).toBeTruthy();
+                
+                done();
+            });
+        });
+        
+        it('can use custom headers', function(done){
+            request(requests.headers, function(err, body, xhr){
+                expect(err).toBeNull();
+                expect(typeof body).toEqual('string');
+                
+                var data = request.parseJSON(body);
+                expect(data['x-custom']).toEqual('Kiril\'s header');
+                
+                done();
+            });
+        });
+        
+        it('catches server errors', function(done){
+            request(requests.error, function(err, body, xhr){
+                expect(err instanceof Error).toEqual(true);
+                
+                //error messages are always strings
+                expect(err.message).toEqual('500');
+                
+                done();
+            });
+        });
+        
+        it('catches network timeouts', function(done){
+            request(requests.timeout, function(err, body, xhr){
+                //TODO make sure this is also an error
+                expect(err instanceof XMLHttpRequestProgressEvent).toEqual(true);
+                
+                done();
+            });
+        });
+    });
+    
+    describe('json requests', function(){
+        it('makes json requests', function(done){
+            request.json(requests.jsonReq, function(err, body, xhr){
+                expect(err).toBeNull();
+                expect(typeof body).toEqual('object');
+                
+                //hardcoded in the nodetest.js server
+                expect(body.a).toEqual(1);
+                
+                done();
+            });
+        });
+    });
+    
+    describe('jsonp requests', function(){
+        it('makes jsonp requests', function(done){
+            request.jsonp({url:'http://localhost:8081/json'}, function(err, body){
+                expect(err).toBeNull();
+                expect(typeof body).toEqual('object');
+                
+                //hardcoded in the nodetest.js server
+                expect(body.a).toEqual(1);
+                
+                done();
+            });
+        });
+    });
 </script>
 </body>
 </html>

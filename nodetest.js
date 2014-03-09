@@ -3,6 +3,7 @@ var fs = require('fs');
 
 var serverPort = 8080;
 var jsonpPort = 8081;
+var timeout = 500;
 
 var routes = {
 	staticFile: function(req, res){
@@ -36,7 +37,8 @@ var routes = {
 	},
 	json: function(req, res){
 		res.writeHead(200, {'Content-Type': 'application/json'});
-		res.end(JSON.stringify( {a: 1, b: 2} ));
+		//this value is used by Jasmine test
+        res.end(JSON.stringify( {a: 1, b: 2} ));
 	},
 	headers: function(req, res){
 		res.writeHead(200, {'Content-Type': 'application/json'});
@@ -84,8 +86,8 @@ var server = http.createServer(function (req, res) {
 	}
 }).listen(serverPort);
 
-//kill requests after 2 second (used for /timeout option)
-server.setTimeout(2000);
+//kill requests after 1 second (used for /timeout option)
+server.setTimeout(timeout);
 
 var jsonp = http.createServer(function(req, res){
 	console.log(req.url);
@@ -102,22 +104,23 @@ var jsonp = http.createServer(function(req, res){
 
 	var callback = query.callback;
 	var url = req.url.split('?').shift();
-
-
-	switch(url){
-		case '/json':
-			res.writeHead(200, {'Content-Type': 'application/javascript'});
-			res.end(callback + '(' + JSON.stringify({a:1,b:2,q:query}) + ')');
-			break;
-		default:
-			res.writeHead(404);
-			res.end('jsonp - Not found');
-	}
-
-	res.end(JSON.stringify({query: query, url: url}));
+    
+    switch(url){
+        case '/json':
+            //send some junk JSON
+            res.writeHead(200, {'Content-Type': 'application/javascript'});
+            res.end(callback + '(' + JSON.stringify({a:1,b:2,q:query}) + ')');
+        case '/timeout':
+            //ignore, let it time out
+            break;
+        default:
+            //send 404 error
+            res.writeHead(404);
+            res.end('jsonp - Not found');
+    }
 });
 
-//jsonp.setTimeout(2000);
+jsonp.setTimeout(timeout);
 jsonp.listen(jsonpPort);
 
 console.log('server listening on port ', serverPort);
