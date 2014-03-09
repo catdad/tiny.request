@@ -47,7 +47,10 @@ As I have hinted, you can make special requests for JSON and [JSONP](http://json
 	//JSONP
 	request.jsonp(options, callback);
 
-The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter, but you'll see some inconsistency with JSON requests. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback. Since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback, though a regular JSON call will still get the `xhr` object.
+The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter, but you'll see some inconsistency with JSON requests. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback.
+
+Also, since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback. It also does not support synchronous requests, so it will ignore whatever you pass in as the `async` option in the parameters.
++
 
 ### Bonus
 
