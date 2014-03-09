@@ -95,6 +95,9 @@
 
     	//create correct url
     	scr.src = (obj.url.match(/\?/)) ? (obj.url + '&callback=' + cb) : (obj.url + '?callback=' + cb);
+        
+        //I'm not sure if I want to support this yet
+        //(obj.async !== false) ? (scr.async = true) : (scr.async = false);
     	
     	//catch network errors
     	scr.onerror = function(err){
