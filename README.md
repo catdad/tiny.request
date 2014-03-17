@@ -32,7 +32,7 @@ The request object takes the following parameters:
 
 ### Callback parameters:
 
-`err`: Uh oh! Something went wrong. If this parameter is not `null`, then the request errored out. The error can be an HTTP error (like a 404), or a network error (like a request timeout). The errors will not be consistent in in type -- most will be `Error`, some will be `XMLHttpRequestProgressEvent`, and some stil will be `Event` -- but if you get this parameter, you can just assume you are not getting your data.
+`err`: Uh oh! Something went wrong. If this parameter is not `null`, then the request errored out. The error can be an HTTP error (like a 404), or a network error (like a request timeout). All errors will be an instance of `Error` with a short message telling you what went wrong. Furhter, `Error.original` will contain the original object that suggested the error, so you can further inspect what happened. The `Error.original` object will not be consistent in in type -- most will be `Error`, some will be `XMLHttpRequestProgressEvent`, some will be `Event`, and some will differ depending on the browser -- this is why all errors are stadardized before returning.
 
 `body`: For the most part, this will be the raw response content. In `.json` and `.jsonp`, this will be a parsed object. If there was an error, this value will be `undefined`.
 
@@ -47,9 +47,18 @@ As I have hinted, you can make special requests for JSON and [JSONP](http://json
 	//JSONP
 	request.jsonp(options, callback);
 
-The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter, but you'll see some inconsistency with JSON requests. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback.
+The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback. Since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback. It also does not support synchronous requests, so it will ignore whatever you pass in as the `async` option in the parameters.
 
-Also, since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback. It also does not support synchronous requests, so it will ignore whatever you pass in as the `async` option in the parameters.
+If the remote JSONP server returns invalid JSON, this will cause a silent error in most browsers. This is a security limitation of these browsers, and all JSONP libraries will fail silently for now. Where allowed, these errors will be handled -- for example, when the remote server returns a cross-origin header -- however, this could be rare due to the nature of JSONP. If you would like Tiny Request to attempt to guess when these errors occur and execute an error callback, you need to enable unknown errors for each request, as such:
+
+	request.jsonp({
+		url: 'http://notmysite.com/get/some/json'
+		unknownErrors: true
+	}, function(err, body){
+		//handle response
+	});
+	
+_Note: this is only the case for JSONP requests. All other requests, including `.json` will handle invalid response errors._
 
 ### Bonus:
 
