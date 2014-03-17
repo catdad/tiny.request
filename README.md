@@ -32,7 +32,7 @@ The request object takes the following parameters:
 
 ### Callback parameters:
 
-`err`: Uh oh! Something went wrong. If this parameter is not `null`, then the request errored out. The error can be an HTTP error (like a 404), or a network error (like a request timeout). All errors will be an instance of `Error` with a short message telling you what went wrong. Furhter, `Error.original` will contain the original object that suggested the error, so you can further inspect what happened. The `Error.original` object will not be consistent in in type -- most will be `Error`, some will be `XMLHttpRequestProgressEvent`, some will be `Event`, and some will differ depending on the browser -- this is why all errors are stadardized before returning.
+`err`: Uh oh! Something went wrong. If this parameter is not `null`, then the request errored out. The error can be an HTTP error (like a 404), or a network error (like a request timeout). All errors will be an instance of `Error` with a short message telling you what went wrong. `Error.original` will contain the original object that suggested the error, so you can further inspect what happened. The `Error.original` object will not be consistent in in type -- most will be `Error`, some will be `XMLHttpRequestProgressEvent`, some will be `Event`, and some will differ depending on the browser -- this is why all errors are stadardized before returning.
 
 `body`: For the most part, this will be the raw response content. In `.json` and `.jsonp`, this will be a parsed object. If there was an error, this value will be `undefined`.
 
