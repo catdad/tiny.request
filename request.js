@@ -1,5 +1,5 @@
 !function (global) {
-	//util
+	//util -- TODO is this needed?
 	var each = function(arr, func){
 		var native = [].forEach;
 
@@ -14,7 +14,7 @@
 		else (function(){
 			//object-style forEach
 			//TODO error check
-			for (i in arr){
+			for (var i in arr){
 				if (arr.hasOwnProperty(i)) func(arr[i], i, arr);
 			}
 		})();
@@ -32,21 +32,27 @@
        	//get correct XHR object
        	//create new request
         var ajax = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-
+        
+        //handle all errors for this function
+        function returnError(message, originalError){
+            var err = new Error(message);
+            err.original = originalError;
+            done(err, undefined, ajax);
+        }
+        
         //state change listener
         ajax.onreadystatechange = function () {
             if (ajax.readyState === 4 && ajax.status === 200)
                 //return (err, body, xhr)
                 done(null, ajax.responseText, ajax);
             else if (ajax.readyState === 4 && ajax.status !== 0){
-            	//return (err, body, xhr)
-            	var err = new Error(ajax.status);
-            	err.body = ajax.responseText;
-            	done(err, undefined, ajax);
-            }
-            else if (ajax.readyState == 4){
-            	//hmm... do not handle this, onerror has got it
-            	//done('unknown error -- likely timeout', null, ajax);
+            	//handle IE timeouts and special cases
+                if (ajax.status === 12152) returnError('unknown ajax error', ajax);
+                else if (ajax.status > 10000) returnError('unknown IE error', ajax);
+                else{
+                    //return HTTP error
+                    returnError('HTTP error ' + ajax.status, ajax);   
+                }
             }
         };
 
@@ -60,8 +66,7 @@
         //}
 
         ajax.onerror = function(xhrErr){
-        	//return (err, body, xhr)
-        	done(xhrErr, undefined, ajax)
+        	returnError('unknown ajax error', xhrErr);
         };
 		
 		//add any headers (must be done after .open but before .send)
@@ -81,8 +86,16 @@
     	request(obj, function(err, body, xhr){
     		if (err) done(err, body, xhr);
     		else{
-    			var parsedData = request.parseJSON(body);
-    			(parsedData) ? done(null, parsedData, xhr) : done(new Error('invalid JSON'), undefined, xhr);
+    			try{
+                    var parsedData = request.parseJSON(body);
+                    done(null, parsedData, xhr);    
+                }
+                catch(e){
+                    var err = new Error('invalid JSON');
+                    //forward the original error along
+                    err.original = e;
+                    done(err, undefined, xhr);
+                }
     		}
     	});
     };
@@ -93,27 +106,89 @@
     	//generate reasonably unique callback name
     	var cb = 'tinyrequest_' + Date.now() + '' + Math.random().toString().split('.').pop();
 
+        //did user request 'unknown errors'?
+        obj.unknownErrors = !!obj.unknownErrors;
+        
     	//create correct url
     	scr.src = (obj.url.match(/\?/)) ? (obj.url + '&callback=' + cb) : (obj.url + '?callback=' + cb);
+        scr.async = false;
         
         //I'm not sure if I want to support this yet
         //(obj.async !== false) ? (scr.async = true) : (scr.async = false);
     	
+        var cleanUp = function cleanUpJSONP(){
+            //clean up scripts
+            scr.parentNode.removeChild(scr);
+            request.removeEvent(window, 'error', onError);
+            //window.removeEventListener('error', onError);
+        }
+        
     	//catch network errors
-    	scr.onerror = function(err){
+        scr.onerror = function(err){
     		done(err);
-    		//cleanup script
-    		scr.parentNode.removeChild(scr);
+            //cleanup script
+    		cleanUp();
     	};
 
     	//create callback method
-    	window[cb] = function(data){ 
+    	window[cb] = function(data){
     		done(null, data);
 			//cleanup script
-			scr.parentNode.removeChild(scr);
+			cleanUp();
     	};
-
-    	//insert script into document
+        
+        //attempt to catch scripting errors (invalid JSON data)
+        //this works with only one request at a time
+        //it will not handle multiple simultaneous jsonp requests
+        var onError = function(err, filename, lineno, colno, stackTrace){
+            //TODO make sure this is my error
+            
+            var returnError = function(){
+                var newError = new Error('jsonp scripting error');
+                newError.original = err;
+                
+                done(newError);
+                cleanUp();
+            }
+            
+            if (err.filename === scr.src){
+                //CORS enabled JSONP
+                //IE 10/11 always gives us the filename -- awesome
+                returnError();
+            }
+            else if (filename === scr.src){
+                //this is in the spec -- not sure if any browsers use it
+                returnError();
+            }
+            else if (window.event && window.event.errorUrl === scr.src){
+                //early IE -- only works once, not awesome
+                window.event = null;
+                returnError();
+            }
+            //good guess for an error in Chrome
+            else if (obj.unknownErrors && err.target == window && err.filename === '' && err.message === 'Script error.'){
+                //Chrome gives us nothing -- boo
+                //this is an error from an untrusted script
+                //console.log('**Chrome guess**');
+                returnError();
+            }
+            //good guess for an error in Firefox
+            else if (obj.unknownErrors && err.target === window && !err.filename){
+                console.log('**I am Firefox, I will offer no help');
+                returnError();
+            }
+            else if (err.filename && err.filename !== scr.src){
+                //this is explicitly not my error
+                //skip it and do nothing here
+            }
+            else { 
+                //don't know what to do -- clean up?
+                cleanUp();
+            }
+        };
+        request.addEvent(window, 'error', onError);
+        
+    	//insert script into document -- make jsonp request
     	var head = document.getElementsByTagName('head')[0];
     	head.appendChild(scr);
     };
@@ -131,5 +206,15 @@
 		}
 
 		return null;
+    };
+    
+    //cross-browser event listeners
+    request.addEvent = function addEvent(obj, event, handler){
+        if(obj.addEventListener) obj.addEventListener(event, handler, false);
+        else if (obj.attachEvent) obj.attachEvent('on'+event, handler);
+    };
+    request.removeEvent = function(obj, event, handler){
+        if(obj.removeEventListener) obj.removeEventListener(event, handler, false);
+        else if (obj.detachEvent) obj.detachEvent('on'+event, handler);
     };
 }(this);

@@ -8,9 +8,15 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine-html.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/boot.js"></script>
     <link href='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine.css' rel='stylesheet' />
+    
+    <style>
+        /* jasmine style fix */
+        html, body{ margin: 0; padding: 0; overflow: auto; }
+    </style>
 </head>
 <body>
-    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script type="text/javascript" src='request.js'></script>
 <script>
     //some premade requests
@@ -22,7 +28,8 @@
         notFound: { url: '/404' },
         timeout: { url: '/timeout' },
         error: { url: '/error' },
-        jsonReq: {url: '/json' }
+        jsonReq: {url: '/json' },
+        junk: {url: '/junk' }
     }
     
 	var handleResponse = function(err, body, xhr){
@@ -61,7 +68,7 @@
      *
      **************************/
     
-    describe('regular requests', function(){
+    describe('regular request', function(){
         it('should make simple requests', function(done){
             request(requests.jsonReq, function(err, body, xhr){
                 expect(err).toBeNull();
@@ -88,7 +95,7 @@
                 expect(err instanceof Error).toEqual(true);
                 
                 //error messages are always strings
-                expect(err.message).toEqual('500');
+                expect(err.message).toEqual('HTTP error 500');
                 
                 done();
             });
@@ -97,14 +104,16 @@
         it('catches network timeouts', function(done){
             request(requests.timeout, function(err, body, xhr){
                 //TODO make sure this is also an error
-                expect(err instanceof XMLHttpRequestProgressEvent).toEqual(true);
+                expect(err).toBeTruthy();
+                expect(body).toBeFalsy();
+                expect(err.message).toEqual('unknown ajax error');
                 
                 done();
             });
         });
     });
     
-    describe('json requests', function(){
+    describe('json request', function(){
         it('makes json requests', function(done){
             request.json(requests.jsonReq, function(err, body, xhr){
                 expect(err).toBeNull();
@@ -116,13 +125,21 @@
                 done();
             });
         });
+        
+        it('knows when your JSON is invalid', function(done){
+            request.json(requests.junk, function(err, body, xhr){
+                expect(err instanceof Error).toEqual(true);
+                expect(body).toEqual(undefined);
+                
+                done();
+            });
+        });
     });
     
-    describe('jsonp requests', function(){
+    describe('jsonp request', function(){
         it('makes jsonp requests', function(done){
             request.jsonp({url:'http://localhost:8081/json'}, function(err, body){
                 expect(err).toBeNull();
-                expect(typeof body).toEqual('object');
                 
                 //hardcoded in the nodetest.js server
                 expect(body.a).toEqual(1);
@@ -130,7 +147,23 @@
                 done();
             });
         });
+        
+        it('knows when your JSONP is invalid... sometimes', function(done){
+            var options = {
+                url:'http://localhost:8081/junk',
+                //needed for most browsers
+                unknownErrors: true
+            };
+            request.jsonp(options, function(err, body, xhr){
+                expect(err instanceof Error).toEqual(true);
+                expect(err.message).toEqual('jsonp scripting error');
+                expect(body).toEqual(undefined);
+                
+                done();
+            });
+        });
     });
+    /* */
 </script>
 </body>
 </html>

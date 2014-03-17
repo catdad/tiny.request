@@ -40,6 +40,11 @@ var routes = {
 		//this value is used by Jasmine test
         res.end(JSON.stringify( {a: 1, b: 2} ));
 	},
+    junkJSON: function(req, res){
+        res.writeHead(200, {'Content-Type': 'application/json'});
+		//this is supposed to be invalid JSON
+        res.end('not valid JSON data');
+    },
 	headers: function(req, res){
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(JSON.stringify(req.headers));
@@ -51,7 +56,11 @@ var routes = {
 	notFound: function(req, res){
 		res.writeHead(404);
 		res.end('Not found');
-	}
+	},
+    html: function(req, res, code){
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end(code);
+    }
 }
 
 var server = http.createServer(function (req, res) {
@@ -64,29 +73,34 @@ var server = http.createServer(function (req, res) {
 		case '/headers':
 			routes.headers(req, res);
 			break;
-		case '/error':
+        case '/junk':
+            routes.junkJSON(req, res);
+            break;
+        case '/error':
 			routes.error(req, res);
 			break;
 		case '/404':
 			routes.notFound(req, res);
 			break;
 		case '/timeout':
-			break;
+			//do nothing
+            break;
 		case '/':
-			var str = 'Tiny Request test server:\n\n'
-					+ '/json -- returns a JSON object\n'
-					+ '/headers -- returns a JSON with the headers of the request\n'
-					+ '/error -- returns a 500 error\n'
-					+ '/404 -- returns a 404 error\n'
-					+ '/timeout -- request times out after 1 second';
-			res.end(str);
+			routes.html(req, res, 'Tiny Request test server:<br><br>'
+                + 'go to <a href="/index.html">/index.html</a> to begin tests<br><br>'
+                + '/json -- returns a JSON object<br>'
+                + '/headers -- returns a JSON with the headers of the request<br>'
+                + '/error -- returns a 500 error<br>'
+                + '/junk -- returns invalid JSON<br>'
+                + '/404 -- returns a 404 error<br>'
+                + '/timeout -- request times out after 1 second');
 			break;
 		default:
 			routes.staticFile(req, res);
 	}
 }).listen(serverPort);
 
-//kill requests after 1 second (used for /timeout option)
+//kill requests after specific time (used for /timeout option)
 server.setTimeout(timeout);
 
 var jsonp = http.createServer(function(req, res){
@@ -112,6 +126,11 @@ var jsonp = http.createServer(function(req, res){
             res.end(callback + '(' + JSON.stringify({a:1,b:2,q:query}) + ')');
         case '/timeout':
             //ignore, let it time out
+            break;
+        case '/junk':
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            //this is supposed to be invalid JSON
+            res.end(callback + '(' + '{\"not valid JSON data\"' + ')');
             break;
         default:
             //send 404 error

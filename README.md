@@ -6,7 +6,7 @@ Don't use jQuery if all you need is simple AJAX. Tiny Request is here to help. I
 
 Include this script in your page:
     
-    <script src="//catdad.github.io/tiny.cdn/lib/request/latest/request.min.js"></script>
+    <script src="http://catdad.github.io/tiny.cdn/lib/request/latest/request.min.js"></script>
     
 Then make some requests:
 
@@ -50,13 +50,24 @@ As I have hinted, you can make special requests for JSON and [JSONP](http://json
 The callback parameters still use the same style, but are a little different. As mentioned above, `err` will the first parameter, but you'll see some inconsistency with JSON requests. The second, `body`, will be a parsed JSON object, so it'll be ready to use as soon as you get the callback.
 
 Also, since JSONP does not use `XMLHttpRequest`, it will not receive an `xhr` in the callback. It also does not support synchronous requests, so it will ignore whatever you pass in as the `async` option in the parameters.
-+
 
-### Bonus
+### Bonus:
 
-You also get a bonus basic JSON parser with this library:
+There is a basic JSON parser in this library:
 
 	var obj = request.parseJSON(jsonString);
+
+There are also cross-browser event binding functions:
+
+    //create handler function
+    function handler(){ };
+    
+    //add event -- use .addEventListener event names
+    request.addEvent(document.body, 'click', handler);
+    
+    //remove event -- use .removeEventListener event names
+    //needs original handler function object
+    request.removeEvent(document.body, 'click', handler);
 
 You are welcome.
 
