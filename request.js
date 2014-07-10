@@ -1,3 +1,6 @@
+/* jshint browser: true */
+/* global ActiveXObject */
+
 !function (global) {
 	//util -- TODO is this needed?
 	var each = function(arr, func){
@@ -49,7 +52,7 @@
             	//handle IE timeouts and special cases
                 if (ajax.status === 12152) returnError('unknown ajax error', ajax);
                 else if (ajax.status > 10000) returnError('unknown IE error', ajax);
-                else{
+                else {
                     //return HTTP error
                     returnError('HTTP error ' + ajax.status, ajax);   
                 }
@@ -79,24 +82,23 @@
 
         //because why not
         return ajax;
-    }
+    };
 
     //add special methods
     request.json = function jsonRequest(obj, done){
     	request(obj, function(err, body, xhr){
     		if (err) done(err, body, xhr);
-    		else{
-    			try{
+            else {
+                try {
                     var parsedData = request.parseJSON(body);
                     done(null, parsedData, xhr);    
-                }
-                catch(e){
+                } catch(e) {
                     var err = new Error('invalid JSON');
                     //forward the original error along
                     err.original = e;
                     done(err, undefined, xhr);
                 }
-    		}
+            }
     	});
     };
 
@@ -104,7 +106,7 @@
     	//create script element
     	var scr = document.createElement('script');
     	//generate reasonably unique callback name
-    	var cb = 'tinyrequest_' + Date.now() + '' + Math.random().toString().split('.').pop();
+    	var cb = 'tinyrequest_' + Date.now() + '_' + Math.random().toString().split('.').pop();
 
         //did user request 'unknown errors'?
         obj.unknownErrors = !!obj.unknownErrors;
@@ -121,7 +123,7 @@
             scr.parentNode.removeChild(scr);
             request.removeEvent(window, 'error', onError);
             //window.removeEventListener('error', onError);
-        }
+        };
         
     	//catch network errors
         scr.onerror = function(err){
@@ -149,7 +151,7 @@
                 
                 done(newError);
                 cleanUp();
-            }
+            };
             
             if (err.filename === scr.src){
                 //CORS enabled JSONP
@@ -174,7 +176,7 @@
             }
             //good guess for an error in Firefox
             else if (obj.unknownErrors && err.target === window && !err.filename){
-                console.log('**I am Firefox, I will offer no help');
+                //console.log('**I am Firefox, I will offer no help');
                 returnError();
             }
             else if (err.filename && err.filename !== scr.src){
@@ -198,12 +200,15 @@
     	if (window.JSON && window.JSON.parse) return (JSON.parse(jsonStr));
 
     	//logic derived from https://github.com/douglascrockford/JSON-js
+        /* jshint -W054 */
+        // boo, eval is evil
     	if (/^[\],:{}\s]*$/
 		.test(jsonStr.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
 		.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
 		.replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
 		    return (new Function( 'return ' + jsonStr))();
 		}
+        /* jshint +W054 */
 
 		return null;
     };
