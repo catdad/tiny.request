@@ -1,4 +1,4 @@
-/* jshint browser: true */
+/* jshint browser: true, -W030 */
 /* global ActiveXObject */
 
 !function (global) {

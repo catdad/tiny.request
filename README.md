@@ -89,3 +89,5 @@ All CSS rules have a `t-` prefix, to decrease the posibility of affecting other 
 ## License
 
 This project is licensed under the [MIT X11](http://opensource.org/licenses/MIT) License.
+
+[![Analytics](https://ga-beacon.appspot.com/UA-17159207-7/tiny-request/readme)](https://github.com/igrigorik/ga-beacon)
