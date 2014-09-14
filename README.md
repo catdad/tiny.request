@@ -6,7 +6,7 @@ Don't use jQuery if all you need is simple AJAX. Tiny Request is here to help. I
 
 Include this script in your page:
     
-    <script src="http://catdad.github.io/tiny.cdn/lib/request/latest/request.min.js"></script>
+    <script src="http://catdad.github.io/tiny.cdn/lib/request/0.3.0/request.min.js"></script>
     
 Then make some requests:
 
