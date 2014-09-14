@@ -1,10 +1,12 @@
 /* jshint browser: true, -W030 */
 /* global ActiveXObject */
 
-!function (global) {
-	//util -- TODO is this needed?
+!function (window) {
+	//util
 	var each = function(arr, func){
 		var native = [].forEach;
+        
+        if (!arr) return [];
 
 		if (arr instanceof Array || 'length' in arr){
 			//array-style forEach
@@ -22,15 +24,22 @@
 			}
 		})();
 	};
+    var map = function(arr, func){
+        var newArr = [];
+        each(arr, function(el, i, arr){
+            newArr.push( func(el, i, arr) );
+        });
+        return newArr;
+    };
 
-    var request = global.request = function (obj, done) {
+    var request = window.request = function (obj, done) {
         //make sure obj exists
         obj = obj || {};
         //check settings and create defaults
         obj.url = obj.url || '#';
-        obj.method = obj.method || 'GET';
+        obj.method = (obj.method || 'GET').toUpperCase();
         obj.async = obj.async || true;
-        obj.body = obj.body || null;
+        obj.body = obj.body || obj.data || null;
 
        	//get correct XHR object
        	//create new request
@@ -73,13 +82,44 @@
         };
 		
 		//add any headers (must be done after .open but before .send)
-		if (obj.headers)
+		var contentTypeSet = false;
+        if (obj.headers)
 			each(obj.headers, function(value, name){
 				ajax.setRequestHeader(name, value);
+                
+                if (name.toLowerCase() === 'content-type') contentTypeSet = true;
 			});
 		
-        ajax.send((obj.method === "POST") ? obj.body : null);
-
+        if (obj.method === 'POST') {
+            // set content type if it was not specifically set
+            if (!contentTypeSet) ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            
+            var content = '';
+            
+            switch (typeof obj.body) {
+                case 'object':
+                    content = map(obj.body, function(val, name){
+                        return encodeURIComponent(name) + '=' + encodeURIComponent(val);
+                    }).join('&');
+                    break;
+                case 'string':
+                    content = obj.body;
+                    break;
+                // TODO what should happen here?
+//                case 'array':
+//                    content = map(obj.body, function(el, i){
+//                        return encodeURIComponent('[]') + '=' + encodeURIComponent(el);
+//                    }).join('&');
+//                    break;
+                default:
+                    content = obj.body.toString();
+            }
+            
+            ajax.send(content);
+        } else {
+            ajax.send();   
+        }
+        
         //because why not
         return ajax;
     };
@@ -122,7 +162,6 @@
             //clean up scripts
             scr.parentNode.removeChild(scr);
             request.removeEvent(window, 'error', onError);
-            //window.removeEventListener('error', onError);
         };
         
     	//catch network errors
@@ -218,8 +257,8 @@
         if(obj.addEventListener) obj.addEventListener(event, handler, false);
         else if (obj.attachEvent) obj.attachEvent('on'+event, handler);
     };
-    request.removeEvent = function(obj, event, handler){
+    request.removeEvent = function removeEvent(obj, event, handler){
         if(obj.removeEventListener) obj.removeEventListener(event, handler, false);
         else if (obj.detachEvent) obj.detachEvent('on'+event, handler);
     };
-}(this);
+}(window);

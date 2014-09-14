@@ -16,8 +16,12 @@
 </head>
 <body>
 
+<!-- used only in troubleshooting -->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script type="text/javascript" src='request.js'></script>
+
+<!--<script type="text/javascript" src='request.js'></script>-->
+<script type="text/javascript" src='request.min.js'></script>
+
 <script>
     //some premade requests
     var requests = {
@@ -29,7 +33,8 @@
         timeout: { url: '/timeout' },
         error: { url: '/error' },
         jsonReq: {url: '/json' },
-        junk: {url: '/junk' }
+        junk: {url: '/junk' },
+        post: { url: '/post', method: 'POST' }
     }
     
 	var handleResponse = function(err, body, xhr){
@@ -130,6 +135,40 @@
             request.json(requests.junk, function(err, body, xhr){
                 expect(err instanceof Error).toEqual(true);
                 expect(body).toEqual(undefined);
+                
+                done();
+            });
+        });
+    });
+    
+    describe('POST request', function(){
+        it('makes post resuts', function(done){
+            request(requests.post, function(err, body, xhr){
+                done();
+            });
+        });
+        it('uploads data', function(done){
+            var reqBody = { 'things and': 'stuff', a: 'b', one: 'one' };
+            requests.post.body = reqBody;
+            
+            request(requests.post, function(err, body, xhr){
+                var data = request.parseJSON(body);
+                
+                expect(data.a).toEqual(reqBody.a);
+                expect(data.one).toEqual(reqBody.one);
+                expect(data['things and']).toEqual(reqBody['things and']);
+                
+                done();
+            });
+        });
+        it('can handle JSON responses', function(done){
+            var reqBody = { 'things and': 'stuff', a: 'b', one: 'one' };
+            requests.post.body = reqBody;
+            
+            request.json(requests.post, function(err, body, xhr){
+                expect(body.a).toEqual(reqBody.a);
+                expect(body.one).toEqual(reqBody.one);
+                expect(body['things and']).toEqual(reqBody['things and']);
                 
                 done();
             });
