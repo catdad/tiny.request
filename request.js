@@ -33,7 +33,17 @@
     };
 
     var request = window.request = function (obj, done) {
-        //make sure obj exists
+        //make sure obj exists and is valid
+        if (typeof obj === 'string') {
+            obj = { url: obj };
+        } else if (!(obj && typeof obj === 'object')) {
+            done(new Error(obj + ' is not a valid request object.'));
+            return;
+        } else if (typeof obj.url !== 'string') {
+            done(new Error(obj.url + ' is not a valid string url.'));
+            return;
+        }
+        
         obj = obj || {};
         //check settings and create defaults
         obj.url = obj.url || '#';
