@@ -10,9 +10,7 @@ Include this script in your page:
     
 Then make some requests:
 
-	request({
-		url: 'myurl'
-	}, function(err, body, xhr){
+	request('myurl', function(err, body, xhr){
 		if (err){
 			//request ended badly
 		}
@@ -21,14 +19,15 @@ Then make some requests:
 		}
 	});
 
-The request object takes the following parameters:
+The request can also take a full options object:
 
-	{
+	request({
 		url: '/my/url', //default is '#'
 		method: 'POST', //default is 'GET'
 		async: false, //default is true
 		body: { my: "stuff" } //default is null
-	}
+	},
+    function(err, body, xhr){...});
 
 ### Callback parameters:
 
