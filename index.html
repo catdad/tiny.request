@@ -26,5 +26,21 @@
 <!-- spec -->
 <script type="text/javascript" src='test.js'></script>
 
+<!--manual tests-->
+<script>
+    function jsonError() {
+        request.json('/json', function(err, data){
+            console.log('got data');
+            
+            if (err) {
+                console.log('got error');
+                console.log(err.original);
+            }
+            
+            throw new Error('stuff went wrong');
+        });
+    }
+</script>
+
 </body>
 </html>

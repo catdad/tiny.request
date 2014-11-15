@@ -139,15 +139,19 @@
     	request(obj, function(err, body, xhr){
     		if (err) done(err, body, xhr);
             else {
+                var parseError = null,
+                    parseData;
+                
+                // catch parsing errors
                 try {
-                    var parsedData = request.parseJSON(body);
-                    done(null, parsedData, xhr);    
+                    parseData = request.parseJSON(body);    
                 } catch(e) {
-                    var err = new Error('invalid JSON');
+                    parseError = new Error('invalid JSON');
                     //forward the original error along
-                    err.original = e;
-                    done(err, undefined, xhr);
+                    parseError.original = e;
                 }
+                
+                done(parseError, parseData, xhr);
             }
     	});
     };
