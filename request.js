@@ -50,6 +50,7 @@
         obj.method = (obj.method || 'GET').toUpperCase();
         obj.async = obj.async || true;
         obj.body = obj.body || obj.data || null;
+        obj.form = obj.form || null;
 
        	//get correct XHR object
        	//create new request
@@ -66,7 +67,7 @@
         ajax.onreadystatechange = function () {
             if (ajax.readyState === 4 && ajax.status === 200)
                 //return (err, body, xhr)
-                done(null, ajax.responseText, ajax);
+                done(undefined, ajax.responseText, ajax);
             else if (ajax.readyState === 4 && ajax.status !== 0){
             	//handle IE timeouts and special cases
                 if (ajax.status === 12152) returnError('unknown ajax error', ajax);
@@ -97,12 +98,14 @@
 			each(obj.headers, function(value, name){
 				ajax.setRequestHeader(name, value);
                 
-                if (name.toLowerCase() === 'content-type') contentTypeSet = true;
+                contentTypeSet = contentTypeSet || (name.toLowerCase() === 'content-type');
 			});
 		
         if (obj.method === 'POST') {
             // set content type if it was not specifically set
-            if (!contentTypeSet) ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            if (!contentTypeSet) {
+                ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
             
             var content = '';
             
@@ -139,7 +142,7 @@
     	request(obj, function(err, body, xhr){
     		if (err) done(err, body, xhr);
             else {
-                var parseError = null,
+                var parseError,
                     parseData;
                 
                 // catch parsing errors
@@ -187,7 +190,7 @@
 
     	//create callback method
     	window[cb] = function(data){
-    		done(null, data);
+    		done(undefined, data);
 			//cleanup script
 			cleanUp();
     	};
@@ -217,7 +220,7 @@
             }
             else if (window.event && window.event.errorUrl === scr.src){
                 //early IE -- only works once, not awesome
-                window.event = null;
+                window.event = undefined;
                 returnError();
             }
             //good guess for an error in Chrome
@@ -263,7 +266,7 @@
 		}
         /* jshint +W054 */
 
-		return null;
+		return undefined;
     };
     
     //cross-browser event listeners

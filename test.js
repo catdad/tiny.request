@@ -55,7 +55,7 @@ var handleJSONPResponse = function(err, body, xhr){
 describe('regular request', function(){
     it('should make simple requests using a string URL', function(done){
         request(requests.simple, function(err, body, xhr){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
             expect(body).toBeTruthy();
 
             done();
@@ -64,7 +64,7 @@ describe('regular request', function(){
     });
     it('should make simple requests using options object', function(done){
         request(requests.jsonReq, function(err, body, xhr){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
             expect(body).toBeTruthy();
 
             done();
@@ -73,7 +73,7 @@ describe('regular request', function(){
 
     it('can use custom headers', function(done){
         request(requests.headers, function(err, body, xhr){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
             expect(typeof body).toEqual('string');
 
             var data = request.parseJSON(body);
@@ -159,7 +159,7 @@ describe('data validation', function(){
 describe('json request', function(){
     it('makes json requests using a string URL', function(done){
         request.json(requests.simple, function(err, body, xhr){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
             expect(typeof body).toEqual('object');
 
             //hardcoded in the nodetest.js server
@@ -171,7 +171,7 @@ describe('json request', function(){
 
     it('makes json requests using an options object', function(done){
         request.json(requests.jsonReq, function(err, body, xhr){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
             expect(typeof body).toEqual('object');
 
             //hardcoded in the nodetest.js server
@@ -194,6 +194,8 @@ describe('json request', function(){
 describe('POST request', function(){
     it('makes post resuts', function(done){
         request(requests.post, function(err, body, xhr){
+            expect(err).not.toBeDefined();
+            expect(body).toBeDefined();
             done();
         });
     });
@@ -228,7 +230,7 @@ describe('POST request', function(){
 describe('jsonp request', function(){
     it('makes jsonp requests', function(done){
         request.jsonp({url:'http://localhost:8081/json'}, function(err, body){
-            expect(err).toBeNull();
+            expect(err).not.toBeDefined();
 
             //hardcoded in the nodetest.js server
             expect(body.a).toEqual(1);
