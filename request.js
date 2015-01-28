@@ -50,8 +50,8 @@
         obj.method = (obj.method || 'GET').toUpperCase();
         obj.async = obj.async || true;
         obj.body = obj.body || obj.data || null;
-        obj.form = obj.form || null;
-
+        obj.contentType = obj.dataType === 'plain' ? "text/plain" : 'application/x-www-form-urlencoded';
+        
        	//get correct XHR object
        	//create new request
         var ajax = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
@@ -104,7 +104,7 @@
         if (obj.method === 'POST') {
             // set content type if it was not specifically set
             if (!contentTypeSet) {
-                ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                ajax.setRequestHeader('Content-Type', obj.contentType);
             }
             
             var content = '';
