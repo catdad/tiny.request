@@ -4,14 +4,24 @@
     <title>Tiny Request tests</title>
     
     <!-- include jasmine -->
-    <script src='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine.js'></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine-html.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/boot.js"></script>
-    <link href='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.0.0/jasmine.css' rel='stylesheet' />
+    <script src='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.1.3/jasmine.min.js'></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.1.3/jasmine-html.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jasmine/2.1.3/boot.js"></script>
+    <link href='//cdnjs.cloudflare.com/ajax/libs/jasmine/2.1.3/jasmine.css' rel='stylesheet' />
     
     <style>
         /* jasmine style fix */
-        html, body{ margin: 0; padding: 0; overflow: auto; }
+        html, body{ 
+            margin: 0; 
+            padding: 0; 
+            overflow: auto;
+            background: #eee;
+        }
+        
+        .jasmine_html-reporter {
+            padding: 0;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -20,8 +30,8 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
 <!-- library -->
-<!--<script type="text/javascript" src='request.js'></script>-->
-<script type="text/javascript" src='request.min.js'></script>
+<script type="text/javascript" src='request.js'></script>
+<!--<script type="text/javascript" src='request.min.js'></script>-->
 
 <!-- spec -->
 <script type="text/javascript" src='test.js'></script>
