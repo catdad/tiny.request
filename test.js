@@ -13,7 +13,9 @@ var requests = {
     error: { url: '/error' },
     jsonReq: { url: '/json' },
     junk: { url: '/junk' },
-    post: { url: '/post', method: 'POST' }
+    post: { url: '/post', method: 'POST' },
+    create: { url: '/create' },
+    delete: { url: '/delete' }
 };
 
 var handleResponse = function(err, body, xhr){
@@ -102,6 +104,26 @@ describe('regular request', function(){
             expect(err.message).toEqual('unknown ajax error');
 
             done();
+        });
+    });
+    
+    describe('handle all 200-level responses', function(){
+        it('(i.e. 201)', function(done) {
+            request(requests.create, function(err, body, xhr) {
+                expect(err).toBeFalsy();
+                expect(body).toBeDefined();
+                
+                done();
+            });
+        });
+        
+        it('(i.e. 204)', function(done) {
+            request(requests.delete, function(err, body, xhr) {
+                expect(err).toBeFalsy();
+                expect(body).toBeDefined();
+                
+                done();
+            });
         });
     });
 });

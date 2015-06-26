@@ -4,5 +4,18 @@
             "linting.prefer": "JSHint",
             "linting.usePreferredOnly": true
         }
+    },
+    "jscompiler": {
+        "outputs": [
+            {
+                "inputs": [
+                    "request.js"
+                ],
+                "output": "request.min.js",
+                "generateMap": false,
+                "mangle": true,
+                "isolate": false
+            }
+        ]
     }
 }

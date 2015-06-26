@@ -1,5 +1,7 @@
 /* jshint node: true */
 
+process.title = 'Tiny Request test server';
+
 var http = require('http');
 var fs = require('fs');
 
@@ -10,10 +12,9 @@ var timeout = 500;
 var routes = {
 	staticFile: function(req, res){
 		fs.readFile('.'+req.url, function(err, file){
-			if (err){
+			if (err) {
 				routes.notFound(req, res);
-			}
-			else{
+			} else {
 				var type,
 					ext = req.url.split('.').pop();
 
@@ -50,6 +51,14 @@ var routes = {
 	headers: function(req, res){
 		res.writeHead(200, {'Content-Type': 'application/json'});
 		res.end(JSON.stringify(req.headers));
+	},
+    create: function(req, res) {
+    	res.writeHead(201, {'Content-Type': 'application/json'});
+		res.end(JSON.stringify({ resource: 'id' }));
+	},
+    delete: function(req, res) {
+    	res.writeHead(204);
+		res.end();
 	},
 	error: function(req, res){
 		res.writeHead(500);
@@ -101,28 +110,25 @@ var server = http.createServer(function (req, res) {
 
     switch(req.url){
 		case '/json':
-			routes.json(req, res);
-			break;
+			return routes.json(req, res);
 		case '/headers':
-			routes.headers(req, res);
-			break;
+			return routes.headers(req, res);
+        case '/create':
+            return routes.create(req, res);
+        case '/delete':
+            return routes.delete(req, res);
         case '/junk':
-            routes.junkJSON(req, res);
-            break;
+            return routes.junkJSON(req, res);
         case '/error':
-			routes.error(req, res);
-			break;
+			return routes.error(req, res);
 		case '/404':
-			routes.notFound(req, res);
-			break;
+			return routes.notFound(req, res);
         case '/post':
-            routes.postData(req, res);
-            break;
+            return routes.postData(req, res);
 		case '/timeout':
-			//do nothing
-            break;
+			return; //do nothing
 		case '/':
-			routes.html(req, res, 'Tiny Request test server:<br><br>' + 
+			return routes.html(req, res, 'Tiny Request test server:<br><br>' + 
                         'go to <a href="/index.html">/index.html</a> to begin tests<br><br>' + 
                         '/json -- returns a JSON object<br>' + 
                         '/headers -- returns a JSON with the headers of the request<br>' + 
@@ -130,7 +136,6 @@ var server = http.createServer(function (req, res) {
                         '/junk -- returns invalid JSON<br>' + 
                         '/404 -- returns a 404 error<br>' + 
                         '/timeout -- request times out after 1 second');
-			break;
 		default:
 			routes.staticFile(req, res);
 	}

@@ -65,7 +65,7 @@
         
         //state change listener
         ajax.onreadystatechange = function () {
-            if (ajax.readyState === 4 && ajax.status === 200)
+            if (ajax.readyState === 4 && ajax.status >= 200 && ajax.status < 300)
                 //return (err, body, xhr)
                 done(undefined, ajax.responseText, ajax);
             else if (ajax.readyState === 4 && ajax.status !== 0){
