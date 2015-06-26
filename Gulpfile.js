@@ -3,7 +3,6 @@
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var connect = require('gulp-connect');
 
 gulp.task('minify', function(){
     return gulp.src('request.js')
