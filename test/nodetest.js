@@ -12,14 +12,35 @@ var jsonpPort = 8081;
 var timeout = 500;
 
 var routes = {
-	staticFile: function(req, res){
-		fs.readFile( path.join(__dirname, req.url), function(err, file){
+    staticFile: function(req, res, uris) {
+        if (!uris) {
+            uris = [
+                // search current directory and root directory
+                path.join(__dirname, req.url),
+                path.join('.', req.url)
+            ];
+        }
+
+        var uri = uris.shift();
+        
+        fs.exists(uri, function(exists) {
+            if (exists) {
+                return routes.sendFile(uri, res);
+            } else if (uris.length) {
+                return routes.staticFile(req, res, uris);
+            } else {
+                return routes.notFound(req, res);
+            }
+        });   
+    },
+	sendFile: function(uri, res){
+		fs.readFile(uri, function(err, file){
 			if (err) {
-				routes.notFound(req, res);
+				routes.notFound(undefined, res);
 			} else {
 				var type,
-					ext = req.url.split('.').pop();
-
+					ext = path.extname(uri).replace(/\./g, '');
+                
 				switch(ext){
 					case 'js':
 						type = 'application/javascript';

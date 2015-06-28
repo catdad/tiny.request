@@ -1,3 +1,8 @@
+// Run Jasmine
+// Code adapted from the following sources:
+// https://github.com/ariya/phantomjs/blob/master/examples/run-jasmine.js
+// http://wasbazi.com/blog/running-jasmine-tests-with-phantomjs-ci-setup-part-two/
+
 /* jshint node: true, browser: true */
 /* global phantom */
 
@@ -82,7 +87,7 @@ page.open(system.args[1], function(status){
                         return 0;
                     }
                 } catch(e) {
-                    console.log(ex);
+                    console.log(e);
                     return 1;
                 }
             });
@@ -91,10 +96,3 @@ page.open(system.args[1], function(status){
         });
     }
 });
-
-
-
-
-
-
-
