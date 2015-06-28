@@ -43,6 +43,18 @@ gulp.task('test', ['boot'], function(done) {
 });
 
 gulp.task('boot', function(done) {
+    function debounce(fn, delay) {
+        var timer = null;
+        return function () {
+            var context = this,
+                args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                fn.apply(context, args);
+            }, delay);
+        };
+    }
+    
     var thread = child.exec('npm run boot', {
         cwd: './test'
     }, function(err){
@@ -50,11 +62,10 @@ gulp.task('boot', function(done) {
         console.log(err);
     });
     
-    thread.stdout.on('data', function(){
+    thread.stdout.on('data', debounce(function(){
         done();
-        // only execute done once
         done = noop;
-    });
+    }, 100));
     
 //    thread.stdout.pipe(process.stdout);
 });
