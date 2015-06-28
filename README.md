@@ -1,5 +1,16 @@
 # Tiny Request
 
+[![Build][1]][2] [![MIT License][3]][4] [![Analytics][5]][6]
+
+[1]: https://img.shields.io/travis/catdad/tiny.request/master.svg?style=flat-square
+[2]: https://travis-ci.org/catdad/tiny.request
+
+[3]: https://img.shields.io/github/license/catdad/tiny.request.svg?style=flat-square
+[4]: https://github.com/catdad/tiny.request/blob/master/LICENSE
+
+[5]: https://ga-beacon.appspot.com/UA-17159207-7/tiny-request/readme?flat
+[6]: https://github.com/igrigorik/ga-beacon
+
 Don't use jQuery if all you need is simple AJAX. Tiny Request is here to help. It provides very simple, Node.js-style requests in the browser.
 
 ## Usage
@@ -88,5 +99,3 @@ All CSS rules have a `t-` prefix, to decrease the posibility of affecting other 
 ## License
 
 This project is licensed under the [MIT X11](http://opensource.org/licenses/MIT) License.
-
-[![Analytics](https://ga-beacon.appspot.com/UA-17159207-7/tiny-request/readme)](https://github.com/igrigorik/ga-beacon)
