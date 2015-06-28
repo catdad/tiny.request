@@ -1,5 +1,7 @@
 /* jshint node: true */
 
+var path = require('path');
+
 process.title = 'Tiny Request test server';
 
 var http = require('http');
@@ -11,7 +13,7 @@ var timeout = 500;
 
 var routes = {
 	staticFile: function(req, res){
-		fs.readFile('.'+req.url, function(err, file){
+		fs.readFile( path.join(__dirname, req.url), function(err, file){
 			if (err) {
 				routes.notFound(req, res);
 			} else {
