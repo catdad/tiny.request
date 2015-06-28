@@ -29,7 +29,7 @@ gulp.task('watch', ['minify'], function() {
 gulp.task('test', ['boot'], function(done) {
     var package = require('./package.json');
     
-    child.exec(package.scripts.test, {
+    child.exec(package.scripts.phantom, {
         env: { 'PATH': pathEvn }
     }, function(err, stdout, stderr){
         console.log(stdout);
