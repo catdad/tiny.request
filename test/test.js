@@ -57,8 +57,7 @@ var handleJSONPResponse = function(err, body, xhr){
 describe('regular request', function(){
     it('should make simple requests using a string URL', function(done){
         request(requests.simple, function(err, body, xhr){
-            //expect(err).not.toBeDefined();
-            expect(err).toBeDefined();
+            expect(err).not.toBeDefined();
             expect(body).toBeTruthy();
 
             done();

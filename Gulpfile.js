@@ -13,7 +13,6 @@ var rename = require('gulp-rename');
 var runSequence = require('gulp-run-sequence');
 var chalk = require('chalk');
 
-var thread;
 function boot(done) {
     function debounce(fn, delay) {
         var timer = null;
@@ -27,7 +26,7 @@ function boot(done) {
         };
     }
     
-    thread = child.exec('npm run boot', {
+    var thread = child.exec('npm run boot', {
         cwd: './test'
     }, function(err){
         console.log('done');
@@ -42,8 +41,7 @@ function boot(done) {
 //    thread.stdout.pipe(process.stdout);
     
     process.on('exit', function() {
-        console.log('shutting down test server');
-        thread.kill();
+        thread.kill('SIGTERM');
     });
 }
 
