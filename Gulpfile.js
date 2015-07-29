@@ -61,6 +61,7 @@ function test(done) {
             console.log(chalk.red(stderr));
             
             testFailure = new Error(stderr);
+            testFailure.code = err.code;
         } else {
             console.log(chalk.green(stdout));
         }
@@ -90,7 +91,7 @@ gulp.task('test', ['boot'], function(done) {
     test(function(err) {
         done();
         
-        if (err) { process.exit(err.message); }
+        if (err) { process.exit(err.code); }
         else { process.exit(0); }
     });
 });
