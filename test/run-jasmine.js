@@ -3,10 +3,14 @@
 // https://github.com/ariya/phantomjs/blob/master/examples/run-jasmine.js
 // http://wasbazi.com/blog/running-jasmine-tests-with-phantomjs-ci-setup-part-two/
 
-/* jshint node: true, browser: true */
+/* jshint node: true, browser: true, evil: true, expr: true */
 /* global phantom */
 
 var system = require('system');
+
+console.error = function () {
+    require('system').stderr.write(Array.prototype.join.call(arguments, ' ') + '\n');
+};
 
 /**
  * Wait until the test condition is true or a timeout occurs. Useful for waiting
@@ -50,49 +54,48 @@ if (system.args.length !== 2) {
 
 var page = require('webpage').create();
 
-// Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
+// Route "console.log()" calls from within the Page context to the main Phantom context 
+// (i.e. current "this")
 page.onConsoleMessage = function(msg) {
     console.log(msg);
 };
 
 page.open(system.args[1], function(status){
     if (status !== "success") {
-        console.log("Unable to open " + system.args[1]);
+        console.error("Unable to open " + system.args[1]);
         phantom.exit(1);
     } else {
-        waitFor(function(){
+        waitFor(function() {
             return page.evaluate(function(){
                 return document.body.querySelector('.symbolSummary .pending') === null;
             });
-        }, function(){
-            var exitCode = page.evaluate(function () {
-                try {
-                    console.log('');
-                    console.log(document.body.querySelector('.alert > .bar').innerText);
-
-                    var list = document.body.querySelectorAll('.symbol-summary .failed');
-                    if (list && list.length > 0) {
-                        console.log('');
-                        console.log(list.length + ' test(s) FAILED:');
-                        
-                        for (var i = 0; i < list.length; ++i) {
-                            var el = list[i],
-                                status = el.className,
-                                msg = el.title;
-                            console.log(status + ": " + msg);
-                        }
-                        return 1;
-                    } else {
-                        console.log(document.body.querySelector('.alert > .bar').innerText);
-                        return 0;
-                    }
-                } catch(e) {
-                    console.log(e);
-                    return 1;
-                }
+        }, function() {
+            // get stuff from the resulting web page
+            var testStatus = page.evaluate(function() {
+                return document.body.querySelector('.alert > .bar').innerText;
+            });
+            var errorList = page.evaluate(function() {
+                return document.body.querySelectorAll('.symbol-summary .failed');
             });
             
-            phantom.exit(exitCode);
+            if (errorList && errorList.length > 0) {
+                // we have test failures, report them
+                console.error(testStatus);
+                console.error(errorList.length + ' test(s) FAILED:');
+
+                [].forEach.call(errorList, function(err) {
+                    var status = err.className;
+                    var msg = err.title;
+                    
+                    console.error(status + ': ' + msg);
+                });
+                
+                phantom.exit(1);
+            } else {
+                // all test are successful
+                console.log(testStatus);
+                phantom.exit(0);
+            }
         });
     }
 });

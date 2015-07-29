@@ -11,6 +11,7 @@ var gulp = require('gulp');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var runSequence = require('gulp-run-sequence');
+var chalk = require('chalk');
 
 var thread;
 function boot(done) {
@@ -39,6 +40,11 @@ function boot(done) {
     }, 100));
     
 //    thread.stdout.pipe(process.stdout);
+    
+    process.on('exit', function() {
+        console.log('shutting down test server');
+        thread.kill();
+    });
 }
 
 function test(done) {
@@ -47,8 +53,19 @@ function test(done) {
     child.exec(package.scripts.phantom, {
         env: { 'PATH': pathEvn }
     }, function(err, stdout, stderr){
-        console.log(stdout);
-        done();
+        
+        var testFailure;
+        
+        if (err) {
+            console.log(chalk.yellow(stdout));
+            console.log(chalk.red(stderr));
+            
+            testFailure = new Error(stderr);
+        } else {
+            console.log(chalk.green(stdout));
+        }
+        
+        done(testFailure);
     });
 }
 
@@ -73,7 +90,7 @@ gulp.task('test', ['boot'], function(done) {
     test(function(err) {
         done();
         
-        if (err) { process.exit(err.code); }
+        if (err) { process.exit(err.message); }
         else { process.exit(0); }
     });
 });
