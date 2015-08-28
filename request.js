@@ -6,23 +6,24 @@
 	var each = function(arr, func){
 		var native = [].forEach;
         
-        if (!arr) return [];
+        if (!arr) { return []; }
 
-		if (arr instanceof Array || 'length' in arr){
+		if (arr instanceof Array || 'length' in arr) {
 			//array-style forEach
 			(native) ? native.call(arr, func) : (function(){
 				for (var i = 0; i < arr.length; i++){
 					func(arr[i], i, arr);
 				}
 			})();
-		}
-		else (function(){
-			//object-style forEach
-			//TODO error check
-			for (var i in arr){
-				if (arr.hasOwnProperty(i)) func(arr[i], i, arr);
-			}
-		})();
+		} else {
+            (function(){
+                //object-style forEach
+                //TODO error check
+                for (var i in arr){
+                    if (arr.hasOwnProperty(i)) { func(arr[i], i, arr); }
+                }
+            })();
+        }
 	};
     var map = function(arr, func){
         var newArr = [];
@@ -65,14 +66,16 @@
         
         //state change listener
         ajax.onreadystatechange = function () {
-            if (ajax.readyState === 4 && ajax.status >= 200 && ajax.status < 300)
+            if (ajax.readyState === 4 && ajax.status >= 200 && ajax.status < 300) {
                 //return (err, body, xhr)
                 done(undefined, ajax.responseText, ajax);
-            else if (ajax.readyState === 4 && ajax.status !== 0){
+            } else if (ajax.readyState === 4 && ajax.status !== 0) {
             	//handle IE timeouts and special cases
-                if (ajax.status === 12152) returnError('unknown ajax error', ajax);
-                else if (ajax.status > 10000) returnError('unknown IE error', ajax);
-                else {
+                if (ajax.status === 12152) { 
+                    returnError('unknown ajax error', ajax); 
+                } else if (ajax.status > 10000) { 
+                    returnError('unknown IE error', ajax); 
+                } else {
                     //return HTTP error
                     returnError('HTTP error ' + ajax.status, ajax);   
                 }
@@ -88,18 +91,19 @@
         //	done('err: timeout');
         //}
 
-        ajax.onerror = function(xhrErr){
+        ajax.onerror = function(xhrErr) {
         	returnError('unknown ajax error', xhrErr);
         };
 		
 		//add any headers (must be done after .open but before .send)
 		var contentTypeSet = false;
-        if (obj.headers)
+        if (obj.headers) {
 			each(obj.headers, function(value, name){
 				ajax.setRequestHeader(name, value);
                 
                 contentTypeSet = contentTypeSet || (name.toLowerCase() === 'content-type');
 			});
+        }
 		
         if (obj.method === 'POST') {
             // set content type if it was not specifically set
@@ -140,8 +144,9 @@
     //add special methods
     request.json = function jsonRequest(obj, done){
     	request(obj, function(err, body, xhr){
-    		if (err) done(err, body, xhr);
-            else {
+    		if (err) {
+                done(err, body, xhr);
+            } else {
                 var parseError,
                     parseData;
                 
@@ -224,7 +229,7 @@
                 returnError();
             }
             //good guess for an error in Chrome
-            else if (obj.unknownErrors && err.target == window && err.filename === '' && err.message === 'Script error.'){
+            else if (obj.unknownErrors && err.target === window && err.filename === '' && err.message === 'Script error.'){
                 //Chrome gives us nothing -- boo
                 //this is an error from an untrusted script
                 //console.log('**Chrome guess**');
@@ -253,7 +258,9 @@
 
     //add helpers
     request.parseJSON = function parseJSON(jsonStr){
-    	if (window.JSON && window.JSON.parse) return (JSON.parse(jsonStr));
+    	if (window.JSON && window.JSON.parse) {
+            return (JSON.parse(jsonStr));
+        }
 
     	//logic derived from https://github.com/douglascrockford/JSON-js
         /* jshint -W054 */
@@ -271,11 +278,11 @@
     
     //cross-browser event listeners
     request.addEvent = function addEvent(obj, event, handler){
-        if(obj.addEventListener) obj.addEventListener(event, handler, false);
-        else if (obj.attachEvent) obj.attachEvent('on'+event, handler);
+        if (obj.addEventListener) { obj.addEventListener(event, handler, false); }
+        else if (obj.attachEvent) { obj.attachEvent('on'+event, handler); }
     };
     request.removeEvent = function removeEvent(obj, event, handler){
-        if(obj.removeEventListener) obj.removeEventListener(event, handler, false);
-        else if (obj.detachEvent) obj.detachEvent('on'+event, handler);
+        if (obj.removeEventListener) { obj.removeEventListener(event, handler, false); }
+        else if (obj.detachEvent) { obj.detachEvent('on'+event, handler); }
     };
 }(window);
