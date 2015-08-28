@@ -200,10 +200,11 @@
 			cleanUp();
     	};
         
-        //attempt to catch scripting errors (invalid JSON data)
-        //this works with only one request at a time
-        //it will not handle multiple simultaneous jsonp requests
-        var onError = function(err, filename, lineno, colno, stackTrace){
+        // attempt to catch scripting errors (invalid JSON data)
+        // this works with only one request at a time
+        // it will not handle multiple simultaneous jsonp requests
+        // Note: this function has extra parameters which are not used here
+        var onError = function(err, filename /*, lineno, colno, stackTrace */){
             //TODO make sure this is my error
             
             var returnError = function(){
