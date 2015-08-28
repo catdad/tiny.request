@@ -32,7 +32,7 @@
         });
         return newArr;
     };
-
+    
     var request = window.request = function (obj, done) {
         //make sure obj exists and is valid
         if (typeof obj === 'string') {
@@ -64,8 +64,7 @@
             done(err, undefined, ajax);
         }
         
-        //state change listener
-        ajax.onreadystatechange = function () {
+        function onReadyStateChange() {
             if (ajax.readyState === 4 && ajax.status >= 200 && ajax.status < 300) {
                 //return (err, body, xhr)
                 done(undefined, ajax.responseText, ajax);
@@ -80,8 +79,16 @@
                     returnError('HTTP error ' + ajax.status, ajax);   
                 }
             }
-        };
-
+        }
+        
+        function onError(xhrErr) {
+            returnError('unknown ajax error', xhrErr);
+        }
+        
+        // state change and error listeners
+        ajax.onreadystatechange = onReadyStateChange;
+        ajax.onerror = onError;
+		
         //open request
         ajax.open(obj.method, obj.url, obj.async);
 
@@ -90,11 +97,7 @@
         //ajax.ontimeout = function(){
         //	done('err: timeout');
         //}
-
-        ajax.onerror = function(xhrErr) {
-        	returnError('unknown ajax error', xhrErr);
-        };
-		
+        
 		//add any headers (must be done after .open but before .send)
 		var contentTypeSet = false;
         if (obj.headers) {
