@@ -110,8 +110,10 @@ function pullReport() {
     var dir = fs.workingDirectory;
     var sep = fs.separator;
     
-    var path = dir + sep + 'coverage' + sep + 'coverage.json';
+    var rootdir = dir + sep + 'coverage';
+    var path = rootdir + sep + 'coverage.json';
     console.log(path);
     
+    fs.makeDirectory(rootdir);
     fs.write(path, JSON.stringify(report), 'w');
 }
