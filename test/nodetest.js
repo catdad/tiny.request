@@ -43,7 +43,8 @@ var routes = {
 			} else {
 				var type;
 				var ext = path.extname(uri).replace(/\./g, '');
-                var name = path.basename(uri);
+                var name = path.relative(path.resolve('.'), uri); //path.basename(uri);
+//                var name = path.basename(uri);
                 
 				switch(ext){
 					case 'js':

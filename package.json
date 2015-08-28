@@ -11,7 +11,8 @@
     "test": "gulp test",
     "phantom": "phantomjs test/run-jasmine.js http://localhost:8080/index.html",
     "lcov": "istanbul report --root \"./coverage/\" lcovonly",
-    "report": "istanbul report --root \"./coverage/\" text"
+    "report": "istanbul report --root \"./coverage/\" text",
+    "reportall": "istanbul report --root \"./coverage/\""
   },
   "repository": {
     "type": "git",

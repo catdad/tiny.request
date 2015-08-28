@@ -49,7 +49,7 @@ function test(done) {
     
     child.exec(package.scripts.phantom, {
         env: { 'PATH': pathEvn }
-    }, function(err, stdout, stderr){
+    }, function(err, stdout, stderr) {
         
         var testFailure;
         
@@ -72,17 +72,17 @@ function test(done) {
 }
 
 function lcov(done) {
-    var thread = child.exec('npm run lcov', {
+    child.exec('npm run lcov', {
         cwd: path.resolve('.')
-    }, function(err, stdout, stderr){
+    }, function(err, stdout, stderr) {
         done();
     });
 }
 
 function report(done) {
-    var thread = child.exec('npm run report', {
+    child.exec('npm run report', {
         cwd: path.resolve('.')
-    }, function(err, stdout, stderr){
+    }, function(err, stdout, stderr) {
         console.log(stdout);
         done();
     });
