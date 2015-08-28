@@ -281,38 +281,12 @@
     };
     
     //cross-browser event listeners
-    function eventAction(opts) {
-        if (opts.obj[opts.method]) {
-            opts.obj[opts.method](opts.event, opts.handler, false);
-        } else if (opts.obj[opts.fallback]) {
-            opts.obj[opts.fallback]('on' + opts.event, opts.handler);
-        }
-    }
-    
     request.addEvent = function addEvent(obj, event, handler){
-        eventAction({
-            obj: obj,
-            method: 'addEventListener',
-            fallback: 'attachEvent',
-            event: event,
-            handler: handler
-        });
+        if (obj.addEventListener) { obj.addEventListener(event, handler, false); }
+        else if (obj.attachEvent) { obj.attachEvent('on'+event, handler); }
     };
     request.removeEvent = function removeEvent(obj, event, handler){
-        eventAction({
-            obj: obj,
-            method: 'removeEventListener',
-            fallback: 'detachEvent',
-            event: event,
-            handler: handler
-        });
+        if (obj.removeEventListener) { obj.removeEventListener(event, handler, false); }
+        else if (obj.detachEvent) { obj.detachEvent('on'+event, handler); }
     };
-//    request.addEvent = function addEvent(obj, event, handler){
-//        if (obj.addEventListener) { obj.addEventListener(event, handler, false); }
-//        else if (obj.attachEvent) { obj.attachEvent('on'+event, handler); }
-//    };
-//    request.removeEvent = function removeEvent(obj, event, handler){
-//        if (obj.removeEventListener) { obj.removeEventListener(event, handler, false); }
-//        else if (obj.detachEvent) { obj.detachEvent('on'+event, handler); }
-//    };
 }(window);
