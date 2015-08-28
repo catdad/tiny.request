@@ -11,6 +11,9 @@ var serverPort = 8080;
 var jsonpPort = 8081;
 var timeout = 500;
 
+var istanbul = require('istanbul');
+var instrumenter = new istanbul.Instrumenter();
+
 var routes = {
     staticFile: function(req, res, uris) {
         if (!uris) {
@@ -38,11 +41,17 @@ var routes = {
 			if (err) {
 				routes.notFound(undefined, res);
 			} else {
-				var type,
-					ext = path.extname(uri).replace(/\./g, '');
+				var type;
+				var ext = path.extname(uri).replace(/\./g, '');
+                var name = path.basename(uri);
                 
 				switch(ext){
 					case 'js':
+                        console.log('sending a js file', uri);
+                        
+                        file = file.toString('utf8');
+                        file = instrumenter.instrumentSync(file, name);
+                        
 						type = 'application/javascript';
 						break;
 					case 'html':

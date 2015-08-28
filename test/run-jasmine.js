@@ -7,6 +7,7 @@
 /* global phantom */
 
 var system = require('system');
+var fs = require('fs');
 
 console.error = function () {
     require('system').stderr.write(Array.prototype.join.call(arguments, ' ') + '\n');
@@ -57,7 +58,7 @@ var page = require('webpage').create();
 // Route "console.log()" calls from within the Page context to the main Phantom context 
 // (i.e. current "this")
 page.onConsoleMessage = function(msg) {
-    console.log(msg);
+    //console.log(msg);
 };
 
 page.open(system.args[1], function(status){
@@ -94,8 +95,23 @@ page.open(system.args[1], function(status){
             } else {
                 // all test are successful
                 console.log(testStatus);
+                pullReport();
                 phantom.exit(0);
             }
         });
     }
 });
+
+function pullReport() {
+    var report = page.evaluate(function(){
+        return window.__coverage__;
+    });
+    
+    var dir = fs.workingDirectory;
+    var sep = fs.separator;
+    
+    var path = dir + sep + 'coverage' + sep + 'coverage.json';
+    console.log(path);
+    
+    fs.write(path, JSON.stringify(report), 'w');
+}

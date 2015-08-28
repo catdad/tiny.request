@@ -29,7 +29,6 @@ function boot(done) {
     var thread = child.exec('npm run boot', {
         cwd: './test'
     }, function(err){
-        console.log('done');
         console.log(err);
     });
     
@@ -64,7 +63,28 @@ function test(done) {
             console.log(chalk.green(stdout));
         }
         
-        done(testFailure);
+        if (!testFailure) {
+            report(done);
+        } else {
+            done(testFailure);
+        }
+    });
+}
+
+function lcov(done) {
+    var thread = child.exec('npm run lcov', {
+        cwd: path.resolve('.')
+    }, function(err, stdout, stderr){
+        done();
+    });
+}
+
+function report(done) {
+    var thread = child.exec('npm run report', {
+        cwd: path.resolve('.')
+    }, function(err, stdout, stderr){
+        console.log(stdout);
+        done();
     });
 }
 
@@ -86,16 +106,23 @@ gulp.task('watch', ['minify'], function(done) {
 });
 
 gulp.task('test', ['boot'], function(done) {
+    // TODO better handling of this async code
     test(function(err) {
-        done();
-        
-        if (err) { process.exit(err.code); }
-        else { process.exit(0); }
+    
+        lcov(function(){
+            done();
+            
+            if (err) { process.exit(err.code); }
+            else { process.exit(0); }    
+        });
     });
 });
 
 gulp.task('boot', function(done) {
     boot(done);
 });
+
+gulp.task('report', report);
+gulp.task('lcov', lcov);
 
 gulp.task('default', ['watch']);

@@ -18,15 +18,21 @@ var requests = {
     delete: { url: '/delete' }
 };
 
-var handleResponse = function(err, body, xhr){
-    (err) ? console.log('default err', err) : console.log('default', body);
-};
-var handleJSONResponse = function(err, body, xhr){
-    (err) ? console.log('json err', err) : console.log('json', body);
-};
-var handleJSONPResponse = function(err, body, xhr){
-    (err) ? console.log('jsonp err', err) : console.log('jsonp', body);
-};
+//var handleResponse = function(err, body, xhr){
+//    (err) ? 
+//        console.log('default err', err) : 
+//        console.log('default', body);
+//};
+//var handleJSONResponse = function(err, body, xhr){
+//    (err) ? 
+//        console.log('json err', err) : 
+//        console.log('json', body);
+//};
+//var handleJSONPResponse = function(err, body, xhr){
+//    (err) ? 
+//        console.log('jsonp err', err) : 
+//        console.log('jsonp', body);
+//};
 
 //test requests
 //	request(requests.headers, handleResponse);

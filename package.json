@@ -9,7 +9,9 @@
   "scripts": {
     "boot": "node test/nodetest.js",
     "test": "gulp test",
-    "phantom": "phantomjs test/run-jasmine.js http://localhost:8080/index.html"
+    "phantom": "phantomjs test/run-jasmine.js http://localhost:8080/index.html",
+    "lcov": "istanbul report --root \"./coverage/\" lcovonly",
+    "report": "istanbul report --root \"./coverage/\" text"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-run-sequence": "^0.3.2",
     "gulp-uglify": "^1.2.0",
+    "istanbul": "^0.3.18",
     "phantomjs": "^1.9.17"
   }
 }
