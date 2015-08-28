@@ -102,7 +102,7 @@ gulp.task('watch:test', function(done) {
 gulp.task('watch', ['minify'], function(done) {
     gulp.watch('request.js', ['minify', 'watch:test']);
 
-    runSequence('boot', 'watch:test');
+    runSequence('boot', 'watch:test', done);
 });
 
 gulp.task('test', ['boot'], function(done) {

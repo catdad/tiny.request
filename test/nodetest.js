@@ -48,7 +48,6 @@ var routes = {
                 
 				switch(ext){
 					case 'js':
-                        console.log('sending a js file', uri);
                         
                         file = file.toString('utf8');
                         file = instrumenter.instrumentSync(file, name);
@@ -102,6 +101,8 @@ var routes = {
 		res.end('Not found');
 	},
     postData: function(req, res){
+        var contentType = req.headers['content-type'];
+        
         var body = '',
             decode = function(arr){
                 return arr.map(function(el){
@@ -124,12 +125,17 @@ var routes = {
         });
         
         req.on('end', function(){
-            console.log('POST body:', body);
-            var data = parse(body),
-                dataString = JSON.stringify(data);
-            
-            res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(dataString);
+            if (contentType === 'text/plain') {
+                console.log(body);
+                res.writeHead(200, {'Content-Type': contentType});
+                res.end(body);    
+            } else {
+                var data = parse(body),
+                    dataString = JSON.stringify(data);
+
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(dataString);
+            }
         });
     },
     html: function(req, res, code){
@@ -206,6 +212,9 @@ var jsonp = http.createServer(function(req, res){
             res.writeHead(200, {'Content-Type': 'application/json'});
             //this is supposed to be invalid JSON
             res.end(callback + '(' + '{\"not valid JSON data\"' + ')');
+            break;
+        case '/error':
+            routes.error(req, res);
             break;
         default:
             //send 404 error

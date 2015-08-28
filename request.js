@@ -33,6 +33,12 @@
         return newArr;
     };
     
+    function createError(message, originalError) {
+        var err = new Error(message);
+        err.original = originalError;
+        return err;
+    }
+    
     var request = window.request = function (obj, done) {
         //make sure obj exists and is valid
         if (typeof obj === 'string') {
@@ -51,7 +57,9 @@
         obj.method = (obj.method || 'GET').toUpperCase();
         obj.async = obj.async || true;
         obj.body = obj.body || obj.data || null;
-        obj.contentType = obj.dataType === 'plain' ? "text/plain" : 'application/x-www-form-urlencoded';
+        obj.contentType = (obj.dataType === 'plain' || obj.dataType === 'text') ? 
+            'text/plain' : 
+            'application/x-www-form-urlencoded';
         
        	//get correct XHR object
        	//create new request
@@ -59,9 +67,7 @@
         
         //handle all errors for this function
         function returnError(message, originalError){
-            var err = new Error(message);
-            err.original = originalError;
-            done(err, undefined, ajax);
+            done(createError(message, originalError), undefined, ajax);
         }
         
         function onReadyStateChange() {
@@ -183,24 +189,24 @@
         //I'm not sure if I want to support this yet
         //(obj.async !== false) ? (scr.async = true) : (scr.async = false);
     	
-        var cleanUp = function cleanUpJSONP(){
+        var cleanUp = function cleanUpJSONP() {
             //clean up scripts
             scr.parentNode.removeChild(scr);
             request.removeEvent(window, 'error', onError);
         };
         
     	//catch network errors
-        scr.onerror = function(err){
-    		done(err);
+        scr.onerror = function(err) {
+            done(createError('unknown ajax error', err));
             //cleanup script
-    		cleanUp();
+            cleanUp();
     	};
 
     	//create callback method
     	window[cb] = function(data){
-    		done(undefined, data);
-			//cleanup script
-			cleanUp();
+            done(undefined, data);
+            //cleanup script
+            cleanUp();
     	};
         
         // attempt to catch scripting errors (invalid JSON data)

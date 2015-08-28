@@ -217,6 +217,18 @@ describe('json request', function(){
             done();
         });
     });
+    
+    it('handles error responses', function(done){
+        request.json(requests.error, function(err, body, xhr){
+            console.trace();
+            console.log('err', arguments);
+            expect(err instanceof Error).toEqual(true);
+            expect(err.message).toEqual('HTTP error 500');
+            expect(body).toEqual(undefined);
+
+            done();
+        });
+    });
 });
 
 describe('POST request', function(){
@@ -227,7 +239,7 @@ describe('POST request', function(){
             done();
         });
     });
-    it('uploads data', function(done){
+    it('uploads object data', function(done){
         var reqBody = { 'things and': 'stuff', a: 'b', one: 'one' };
         requests.post.body = reqBody;
 
@@ -238,18 +250,46 @@ describe('POST request', function(){
             expect(data.one).toEqual(reqBody.one);
             expect(data['things and']).toEqual(reqBody['things and']);
 
+            delete requests.post.body;
+            done();
+        });
+    });
+    it('uploads string data using dataType "plain"', function(done){
+        var reqBody = 'i am the data';
+        requests.post.body = reqBody;
+        requests.post.dataType = 'plain';
+
+        request(requests.post, function(err, body, xhr){
+            expect(body).toEqual(reqBody);
+
+            delete requests.post.dataType;
+            delete requests.post.body;
+            done();
+        });
+    });
+    it('uploads string data using dataType "text"', function(done){
+        var reqBody = 'i am the data';
+        requests.post.body = reqBody;
+        requests.post.dataType = 'text';
+
+        request(requests.post, function(err, body, xhr){
+            expect(body).toEqual(reqBody);
+
+            delete requests.post.dataType;
+            delete requests.post.body;
             done();
         });
     });
     it('can handle JSON responses', function(done){
         var reqBody = { 'things and': 'stuff', a: 'b', one: 'one' };
         requests.post.body = reqBody;
-
+        
         request.json(requests.post, function(err, body, xhr){
             expect(body.a).toEqual(reqBody.a);
             expect(body.one).toEqual(reqBody.one);
             expect(body['things and']).toEqual(reqBody['things and']);
 
+            delete requests.post.body;
             done();
         });
     });
@@ -276,6 +316,21 @@ describe('jsonp request', function(){
         request.jsonp(options, function(err, body, xhr){
             expect(err instanceof Error).toEqual(true);
             expect(err.message).toEqual('jsonp scripting error');
+            expect(body).toEqual(undefined);
+
+            done();
+        });
+    });
+    
+    it('handles error responses', function(done){
+        var options = {
+            url:'http://localhost:8081/error',
+            //needed for most browsers
+            unknownErrors: true
+        };
+        request.jsonp(options, function(err, body, xhr){
+            expect(err instanceof Error).toEqual(true);
+            expect(err.message).toEqual('unknown ajax error');
             expect(body).toEqual(undefined);
 
             done();
